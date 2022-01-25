@@ -58,7 +58,7 @@ async def префикс(ctx, prefix):  # command: bl!changeprefix ...
     # next step completely optional: changes bot nickname to also have prefix in the nickname
     name = f'{prefix}BotBot'
 
-
+# ОСТАЛЬНОЙЕ
 @bot.event
 async def on_ready():
     print("second part of Bot is logged in")
@@ -114,16 +114,16 @@ async def инфо(ctx):
         description="Команды информации:",
         color=0xFF00FF)
     embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
-    embed.add_field(name=f"`{get_prefix}о_сервере`",
+    embed.add_field(name=f"`{get_prefix(None, ctx.message)}о_сервере`",
                     value=f"выведет общую информацию сервера",
                     inline=False)
-    embed.add_field(name=f"`{get_prefix}роли`",
+    embed.add_field(name=f"`{get_prefix(None, ctx.message)}роли`",
                     value=f"выведет информацию о ролях",
                     inline=False)
-    embed.add_field(name=f"`{get_prefix}правила`",
+    embed.add_field(name=f"`{get_prefix(None, ctx.message)}правила`",
                     value=f"выведет основные правила",
                     inline=False)
-    embed.add_field(name=f"`{get_prefix}правила_модераторов`",
+    embed.add_field(name=f"`{get_prefix(None, ctx.message)}правила_модераторов`",
                     value="выведет основные правила для модераторов",
                     inline=False)
     embed.set_footer(text="всю эту информацию вы можете найти в чатах с соответственным названием")
@@ -149,18 +149,16 @@ async def помощь(ctx):
         description="Команды бота:",
         color=0xFF00FF)
     embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
-    embed.add_field(name='''`п!модераторство`''',
-                    value='''выведет команды для модераторства
-                        ''',
+    embed.add_field(name=f"`{get_prefix(None, ctx.message)}модерирование`",
+                    value="выведет команды для модераторства",
                     inline=False)
-    embed.add_field(name='''`п!инфо`''',
-                    value='''выведет команды для информации сервера
-                        ''',
+    embed.add_field(name=f"`{get_prefix(None, ctx.message)}инфо`",
+                    value="выведет команды для информации сервера",
                     inline=False)
-    embed.add_field(name='''`п!прочее`''',
-                    value='''выведет прочую информаци по серверу и не только''',
+    embed.add_field(name=f"`{get_prefix(None, ctx.message)}прочее`",
+                    value="выведет прочую информаци по серверу и не только",
                     inline=False)
-    embed.set_footer(text='''по всем остальным вопросам обращаться в поддержку''')
+    embed.set_footer(text="по всем остальным вопросам обращаться в поддержку'")
     await ctx.send(embed=embed)
 
 
@@ -175,19 +173,19 @@ async def модерирование(ctx):
         title=f"Команды модераторства:",
         color=0xFF00FF)
     embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
-    embed.add_field(name="```п!бан```",
+    embed.add_field(name=f"```{get_prefix(None, ctx.message)}бан```",
                     value="банит пользователя",
                     inline=False)
-    embed.add_field(name="```п!мут```",
+    embed.add_field(name=f"```{get_prefix(None, ctx.message)}мут```",
                     value="мутит пользователя",
                     inline=False)
-    embed.add_field(name="```п!анмут```",
+    embed.add_field(name=f"```{get_prefix(None, ctx.message)}анмут```",
                     value="размучивает пользователя",
                     inline=False)
-    embed.add_field(name="```п!очистить <число сообщений>```",
+    embed.add_field(name=f"```{get_prefix(None, ctx.message)}очистить <число сообщений>```",
                     value="очищает указанное число сообщений",
                     inline=False)
-    embed.add_field(name="```п!очистить <число сообщений> <ник человека>```",
+    embed.add_field(name=f"```{get_prefix(None, ctx.message)}очистить <число сообщений> <ник человека>```",
                     value="очищает указанное число сообщений определенного человека",
                     inline=False)
     await ctx.send(embed=embed)
