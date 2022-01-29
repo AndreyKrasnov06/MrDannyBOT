@@ -7,6 +7,7 @@ from discord.utils import get
 from discord.ext.commands import Bot, has_permissions
 from discord.ext import commands
 from discord import Embed, Emoji
+
 with open("config.json") as config:
     config = json.load(config)
 
@@ -15,7 +16,15 @@ with open("config.json") as config:
 def get_prefix(client, message):  # first we define get_prefix
     with open('prefixes.json', 'r') as f:  # we open and read the prefixes.json, assuming it's in the same file
         prefixes = json.load(f)  # load the json as prefixes
+    if str(message.guild.id) not in prefixes.keys():
+        print(prefixes.keys())
+        print(message.guild.id)
+        prefixes[str(message.guild.id)] = '!'
+        with open('prefixes.json', 'w') as f:
+            json.dump(prefixes, f, indent=4)
+        print(prefixes)
     return prefixes[str(message.guild.id)]  # recieve the prefix for the guild id given
+
 
 
 bot = commands.Bot(command_prefix=get_prefix)
@@ -26,7 +35,7 @@ async def on_guild_join(guild):  # when the bot joins the guild
     with open('prefixes.json', 'r') as f:  # read the prefix.json file
         prefixes = json.load(f)  # load the json file
 
-    prefixes[str(guild.id)] = 'bl!'  # default prefix
+    prefixes[str(guild.id)] = '!'  # default prefix
 
     with open('prefixes.json', 'w') as f:  # write in the prefix.json "message.guild.id": "bl!"
         json.dump(prefixes, f, indent=4)  # the indent is to make everything look a bit neater
@@ -45,7 +54,7 @@ async def on_guild_remove(guild):  # when the bot is removed from the guild
 
 @bot.command(pass_context=True)
 @has_permissions(administrator=True)  # ensure that only administrators can use this command
-async def префикс(ctx, prefix):  # command: bl!changeprefix ...
+async def префикс(ctx, prefix):
     with open('prefixes.json', 'r') as f:
         prefixes = json.load(f)
 
@@ -57,6 +66,7 @@ async def префикс(ctx, prefix):  # command: bl!changeprefix ...
     await ctx.send(f'Prefix changed to: {prefix}')  # confirms the prefix it's been changed to
     # next step completely optional: changes bot nickname to also have prefix in the nickname
     name = f'{prefix}BotBot'
+
 
 # ОСТАЛЬНОЙЕ
 @bot.event
