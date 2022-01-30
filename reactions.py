@@ -7,7 +7,6 @@ from discord.utils import get
 from discord import client
 from discord.ext.commands import Bot
 from discord.ext import commands
-from config import settings
 from discord import Embed, Emoji
 from discord.ext.commands import Bot
 
