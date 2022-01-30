@@ -65,7 +65,7 @@ async def префикс(ctx, prefix):
 
     embed = Embed(title=f'Prefix changed to: {prefix}', color=0xb400ff)
     await ctx.send(embed=embed)  # confirms the prefix it's been changed to
-    # next step completely optional: changes bot nickname to also have prefix in the nickname
+    #вот эта залупа делает эмбед
     name = f'{prefix}BotBot'
 
 
