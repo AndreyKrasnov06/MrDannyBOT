@@ -210,18 +210,10 @@ async def debug(ctx, emoji: Emoji):
     await ctx.send(embed=embed)
 
 
-# @Client.command()
-# async def очистить(ctx, number, user: discord.User = ""):
-#    number = int(number)
-#    if user == "":
-#        await ctx.channel.purge(limit=number + 1)
-#    else:
-#        await ctx.channel.purge(limit=number + 1, check=lambda m: m.author == user)
-#    embed = Embed(title=f"Было очищено {number} соощений", description="это сообщение будет удалено через 5 секунд",
-#                  color=0xb400ff)
-#    await ctx.send(embed=embed)
-#    await asyncio.sleep(5)
-#    await ctx.channel.purge(limit=1)
+@bot.command()
+@has_permissions(manage_messages=True)
+async def clear(ctx, amount=5):
+    await ctx.channel.purge(limit=amount + 1)
 
 
 @bot.command(pass_context=True)
@@ -319,13 +311,6 @@ async def join(ctx):
 @bot.command()
 async def left(ctx):
     pass
-
-@bot.command()
-async def спам(ctx, times):
-    for i in range(int(times)):
-        await ctx.send("АНДРЕЙ ЛОХ")
-        await asyncio.sleep(1)
-
 
 
 bot.run(config['token'])
