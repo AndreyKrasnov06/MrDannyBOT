@@ -16,16 +16,14 @@ def get_prefix(client, message):  # first we define get_prefix
         prefixes = json.load(f)  # load the json as prefixes
 
     if str(message.guild.id) not in prefixes.keys():
-        prefixes[str(message.guild.id)] = '!'
-        with open("prefixes.json", "w") as f:
-            json.dump(prefixes, f, indent=4)
+        return "!"
 
     return prefixes[str(message.guild.id)]  # recieve the prefix for the guild id given
 
 
 intents = discord.Intents.default()
 intents.members = True
-bot = commands.Bot(command_prefix='!', intents=intents)
+bot = commands.Bot(command_prefix=get_prefix, intents=intents)
 
 
 @bot.event
@@ -131,7 +129,6 @@ async def инфо(ctx):
 
 @bot.command()
 async def роли(ctx):
-    print("пытаюсь")
     await ctx.send(botCommands.roles())
 
 
@@ -224,8 +221,8 @@ async def каналприветствий(ctx, channel: discord.TextChannel):
     with open("channels.json", "w") as f:  # writes the new prefix into the .json
         json.dump(channels, f, indent=4)
 
-    embed = Embed(title=f"Канал приветствий изменен на: {channel}", color=0xb400ff)
-    await ctx.send(embed=embed)  # confirms the prefix it's been changed to
+    # embed = Embed(title=f"Канал приветствий изменен на: {channel}", color=0xb400ff)
+    await ctx.send(f"Канал приветствий изменен на: <#{channel}>")  # confirms the prefix it's been changed to
 
 
 @bot.command()
