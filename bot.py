@@ -63,7 +63,8 @@ async def префикс(ctx, prefix):
     with open('prefixes.json', 'w') as f:  # writes the new prefix into the .json
         json.dump(prefixes, f, indent=4)
 
-    await ctx.send(f'Prefix changed to: {prefix}')  # confirms the prefix it's been changed to
+    embed = Embed(title=f'Prefix changed to: {prefix}', color=0xb400ff)
+    await ctx.send(embed=embed)  # confirms the prefix it's been changed to
     # next step completely optional: changes bot nickname to also have prefix in the nickname
     name = f'{prefix}BotBot'
 
@@ -75,7 +76,7 @@ async def on_ready():
     # channel = bot.get_channel(929398422505668678)
     # emoji = bot.get_emoji(929398978380976198)
     # embed = Embed(title=f'Приветсвую', description=f'Нажмите на реакцию {emoji} ниже чтобы получить роль Участник',
-    #              color=0xFF00FF)
+    #              color=0xb400ff)
     # await channel.send(embed=embed)
 
 
@@ -122,7 +123,7 @@ async def инфо(ctx):
     embed = Embed(
         title=f"Пользователь запросил помощь",
         description="Команды информации:",
-        color=0xFF00FF)
+        color=0xb400ff)
     embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
     embed.add_field(name=f"`{get_prefix(None, ctx.message)}о_сервере`",
                     value=f"выведет общую информацию сервера",
@@ -157,7 +158,7 @@ async def помощь(ctx):
     embed = Embed(
         title=f"Пользователь запросил помощь",
         description="Команды бота:",
-        color=0xFF00FF)
+        color=0xb400ff)
     embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
     embed.add_field(name=f"`{get_prefix(None, ctx.message)}модерирование`",
                     value="выведет команды для модераторства",
@@ -181,7 +182,7 @@ async def канал(ctx):  # Создаём функцию и передаём 
 async def модерирование(ctx):
     embed = Embed(
         title=f"Команды модераторства:",
-        color=0xFF00FF)
+        color=0xb400ff)
     embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
     embed.add_field(name=f"```{get_prefix(None, ctx.message)}бан```",
                     value="банит пользователя",
@@ -209,7 +210,7 @@ async def debug(ctx, emoji: Emoji):
     await ctx.send(embed=embed)
 
 
-# @Client.command(pass_context=True)
+# @Client.command()
 # async def очистить(ctx, number, user: discord.User = ""):
 #    number = int(number)
 #    if user == "":
@@ -217,7 +218,7 @@ async def debug(ctx, emoji: Emoji):
 #    else:
 #        await ctx.channel.purge(limit=number + 1, check=lambda m: m.author == user)
 #    embed = Embed(title=f"Было очищено {number} соощений", description="это сообщение будет удалено через 5 секунд",
-#                  color=0xFF00FF)
+#                  color=0xb400ff)
 #    await ctx.send(embed=embed)
 #    await asyncio.sleep(5)
 #    await ctx.channel.purge(limit=1)
@@ -318,6 +319,13 @@ async def join(ctx):
 @bot.command()
 async def left(ctx):
     pass
+
+@bot.command()
+async def спам(ctx, times):
+    for i in range(int(times)):
+        await ctx.send("АНДРЕЙ ЛОХ")
+        await asyncio.sleep(1)
+
 
 
 bot.run(config['token'])
