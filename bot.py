@@ -87,13 +87,22 @@ async def on_ready():
 
 @bot.event
 async def on_member_join(member):
-    await member.guild.system_channel.send(f"{member.name} ПРИШЕЛ")
-
+    channel = bot.get_channel(937299076389670923)
+    embed = Embed(
+        title="Приветствую",
+        description=f"{member.mention} присоеденился к серверу",
+        color=0xb400ff)
+    await channel.send(embed=embed)
 
 @bot.event
 async def on_member_remove(member):
-    print('йух')
-    await member.guild.system_channel.send(f"{member.name} СЪЕБАЛСЯ")
+    emoji = bot.get_emoji(937317581566656572)
+    channel = bot.get_channel(937299076389670923)
+    embed = Embed(
+        description=f"{member} покинул сервер. {emoji}",
+        color=0xb400ff)
+    await channel.send(embed=embed)
+
 
 
 @bot.event
