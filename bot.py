@@ -211,9 +211,10 @@ async def debug(ctx, emoji: Emoji):
 
 @bot.command()
 @has_permissions(manage_messages=True)
-async def clear(ctx, amount=5):
+async def очистить(ctx, amount=0):
     await ctx.channel.purge(limit=amount + 1)
-
+    embed = Embed(description=f"Было очищено {amount} сообщений", color=0xb400ff)
+    await ctx.send(embed=embed)
 
 @bot.command(pass_context=True)
 async def чек(ctx, user: discord.Member):
