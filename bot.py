@@ -63,9 +63,8 @@ async def префикс(ctx, prefix):
     with open('prefixes.json', 'w') as f:  # writes the new prefix into the .json
         json.dump(prefixes, f, indent=4)
 
-    embed = Embed(title=f'Prefix changed to: {prefix}', color=0xb400ff)
+    embed = Embed(title=f'Префикс изменен на: {prefix}', color=0xb400ff)
     await ctx.send(embed=embed)  # confirms the prefix it's been changed to
-    #вот эта залупа делает эмбед
     name = f'{prefix}BotBot'
 
 
