@@ -47,6 +47,26 @@ async def left(ctx):
     channel = bot.get_channel(931906445362995252)
     await channel.send(embed=embed)
 
+# @bot.event
+# async def on_message(message):
+# pass
+# emoji = bot.get_emoji(929398978380976198)
+# if message.author != bot.user:
+#     return
+#
+# if message.channel.category.id == 929400040542322708:
+#     members = message.channel.overwrites
+#
+#     await message.add_reaction(emoji)
+#     for m in members:
+#         try:
+#             m.nick
+#         except AttributeError:
+#             pass
+#         else:
+#             await message.channel.set_permissions(m, overwrite=None)
+# if message.channel.id == 929398422505668678:
+#     await message.add_reaction(emoji)
 
 
 bot.run(settings['token'])

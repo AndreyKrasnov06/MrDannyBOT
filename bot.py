@@ -12,63 +12,67 @@ with open("config.json") as config:
     config = json.load(config)
 
 
-# УПРАВЛЕНИЕ ПРЕФИКСАМИ
+# prefix control
 def get_prefix(client, message):  # first we define get_prefix
-    with open('prefixes.json', 'r') as f:  # we open and read the prefixes.json, assuming it's in the same file
+    with open("prefixes.json", "r") as f:  # we open and read the prefixes.json, assuming it's in the same file
         prefixes = json.load(f)  # load the json as prefixes
+
     if str(message.guild.id) not in prefixes.keys():
-        print(prefixes.keys())
-        print(message.guild.id)
         prefixes[str(message.guild.id)] = '!'
-        with open('prefixes.json', 'w') as f:
+        with open("prefixes.json", "w") as f:
             json.dump(prefixes, f, indent=4)
-        print(prefixes)
+
     return prefixes[str(message.guild.id)]  # recieve the prefix for the guild id given
 
 
-
-bot = commands.Bot(command_prefix=get_prefix)
+intents = discord.Intents.default()
+intents.members = True
+bot = commands.Bot(command_prefix='!', intents=intents)
 
 
 @bot.event
-async def on_guild_join(guild):  # when the bot joins the guild
-    with open('prefixes.json', 'r') as f:  # read the prefix.json file
+async def on_guild_join(guild):
+    if guild.system_channel:
+        embed = Embed(title=f"Спасибо, что пригласили меня на сервер {guild.name}", color=0xb400ff)
+        await guild.system_channel.send(embed=embed)  # confirms the prefix it's been changed to
+
+    with open("prefixes.json", "r") as f:  # read the prefix.json file
         prefixes = json.load(f)  # load the json file
 
-    prefixes[str(guild.id)] = '!'  # default prefix
+    prefixes[str(guild.id)] = "!"  # default prefix
 
-    with open('prefixes.json', 'w') as f:  # write in the prefix.json "message.guild.id": "bl!"
+    with open('prefixes.json', "w") as f:  # write in the prefix.json "message.guild.id": "bl!"
         json.dump(prefixes, f, indent=4)  # the indent is to make everything look a bit neater
 
 
 @bot.event
 async def on_guild_remove(guild):  # when the bot is removed from the guild
-    with open('prefixes.json', 'r') as f:  # read the file
+    with open("prefixes.json", "r") as f:  # read the file
         prefixes = json.load(f)
 
     prefixes.pop(str(guild.id))  # find the guild.id that bot was removed from
 
-    with open('prefixes.json', 'w') as f:  # deletes the guild.id as well as its prefix
+    with open("prefixes.json", "w") as f:  # deletes the guild.id as well as its prefix
         json.dump(prefixes, f, indent=4)
 
 
 @bot.command(pass_context=True)
 @has_permissions(administrator=True)  # ensure that only administrators can use this command
 async def префикс(ctx, prefix):
-    with open('prefixes.json', 'r') as f:
+    with open("prefixes.json", "r") as f:
         prefixes = json.load(f)
 
     prefixes[str(ctx.guild.id)] = prefix
 
-    with open('prefixes.json', 'w') as f:  # writes the new prefix into the .json
+    with open("prefixes.json", "w") as f:  # writes the new prefix into the .json
         json.dump(prefixes, f, indent=4)
 
-    embed = Embed(title=f'Префикс изменен на: {prefix}', color=0xb400ff)
+    embed = Embed(title=f"Префикс изменен на: {prefix}", color=0xb400ff)
     await ctx.send(embed=embed)  # confirms the prefix it's been changed to
-    name = f'{prefix}BotBot'
+    name = f"{prefix}BotBot"
 
 
-# ОСТАЛЬНОЙЕ
+# bot events
 @bot.event
 async def on_ready():
     print("second part of Bot is logged in")
@@ -79,26 +83,17 @@ async def on_ready():
     # await channel.send(embed=embed)
 
 
-# @bot.event
-# async def on_message(message):
-# pass
-# emoji = bot.get_emoji(929398978380976198)
-# if message.author != bot.user:
-#     return
 
-# if message.channel.category.id == 929400040542322708:
-#     members = message.channel.overwrites
 
-#     await message.add_reaction(emoji)
-#     for m in members:
-#         try:
-#             m.nick
-#         except AttributeError:
-#             pass
-#         else:
-#             await message.channel.set_permissions(m, overwrite=None)
-# if message.channel.id == 929398422505668678:
-#     await message.add_reaction(emoji)
+@bot.event
+async def on_member_join(member):
+    await member.guild.system_channel.send(f"{member.name} ПРИШЕЛ")
+
+
+@bot.event
+async def on_member_remove(member):
+    print('йух')
+    await member.guild.system_channel.send(f"{member.name} СЪЕБАЛСЯ")
 
 
 @bot.event
@@ -112,6 +107,7 @@ async def on_raw_reaction_add(reaction):
                 await reaction.member.add_roles(role)
 
 
+#bot commands
 @bot.command()
 async def о_сервере(ctx):
     await ctx.send(botCommands.about())
@@ -173,8 +169,8 @@ async def помощь(ctx):
 
 
 @bot.command()
-async def канал(ctx):  # Создаём функцию и передаём аргумент ctx.
-    await ctx.send(botCommands.channel)
+async def канал(ctx):
+    await ctx.send(botCommands.channel())
 
 
 @bot.command()
@@ -215,6 +211,7 @@ async def очистить(ctx, amount=0):
     await ctx.channel.purge(limit=amount + 1)
     embed = Embed(description=f"Было очищено {amount} сообщений", color=0xb400ff)
     await ctx.send(embed=embed)
+
 
 @bot.command(pass_context=True)
 async def чек(ctx, user: discord.Member):
@@ -291,26 +288,6 @@ async def мут(ctx, user: discord.Member, time: float, *reason):
 @bot.command()
 async def анбан(ctx, user: discord.User):
     await ctx.guild.unban(user)
-
-
-@bot.event
-async def on_member_join(member):
-    pass
-
-
-@bot.event
-async def on_member_leave(member):
-    pass
-
-
-@bot.command()
-async def join(ctx):
-    pass
-
-
-@bot.command()
-async def left(ctx):
-    pass
 
 
 bot.run(config['token'])
