@@ -2,9 +2,7 @@ import discord
 import asyncio
 import botCommands
 import json
-import random
-from discord.utils import get
-from discord.ext.commands import Bot, has_permissions
+from discord.ext.commands import has_permissions
 from discord.ext import commands
 from discord import Embed, Emoji
 
@@ -56,22 +54,6 @@ async def on_guild_remove(guild):  # when the bot is removed from the guild
         json.dump(prefixes, f, indent=4)
 
 
-@bot.command(pass_context=True)
-@has_permissions(administrator=True)  # ensure that only administrators can use this command
-async def префикс(ctx, prefix):
-    with open("prefixes.json", "r") as f:
-        prefixes = json.load(f)
-
-    prefixes[str(ctx.guild.id)] = prefix
-
-    with open("prefixes.json", "w") as f:  # writes the new prefix into the .json
-        json.dump(prefixes, f, indent=4)
-
-    embed = Embed(title=f"Префикс изменен на: {prefix}", color=0xb400ff)
-    await ctx.send(embed=embed)  # confirms the prefix it's been changed to
-    name = f"{prefix}BotBot"
-
-
 # bot events
 @bot.event
 async def on_ready():
@@ -83,26 +65,28 @@ async def on_ready():
     # await channel.send(embed=embed)
 
 
-
-
 @bot.event
 async def on_member_join(member):
-    channel = bot.get_channel(937299076389670923)
+    with open("channels.json", "r") as f:  # we open and read the prefixes.json, assuming it's in the same file
+        channels = json.load(f)
+    channel = bot.get_channel(channels[str(member.guild.id)])
     embed = Embed(
         title="Приветствую",
         description=f"{member.mention} присоеденился к серверу",
         color=0xb400ff)
     await channel.send(embed=embed)
 
+
 @bot.event
 async def on_member_remove(member):
     emoji = bot.get_emoji(937317581566656572)
-    channel = bot.get_channel(937299076389670923)
+    with open("channels.json", "r") as f:  # we open and read the prefixes.json, assuming it's in the same file
+        channels = json.load(f)
+    channel = bot.get_channel(channels[str(member.guild.id)])
     embed = Embed(
         description=f"{member} покинул сервер. {emoji}",
         color=0xb400ff)
     await channel.send(embed=embed)
-
 
 
 @bot.event
@@ -116,7 +100,7 @@ async def on_raw_reaction_add(reaction):
                 await reaction.member.add_roles(role)
 
 
-#bot commands
+# bot commands
 @bot.command()
 async def о_сервере(ctx):
     await ctx.send(botCommands.about())
@@ -212,6 +196,36 @@ async def debug(ctx, emoji: Emoji):
     embed.add_field(name="id", value=repr(emoji.id))
     embed.add_field(name="name", value=repr(emoji.name))
     await ctx.send(embed=embed)
+
+
+@bot.command(pass_context=True)
+@has_permissions(administrator=True)  # ensure that only administrators can use this command
+async def префикс(ctx, prefix):
+    with open("prefixes.json", "r") as f:
+        prefixes = json.load(f)
+
+    prefixes[str(ctx.guild.id)] = prefix
+
+    with open("prefixes.json", "w") as f:  # writes the new prefix into the .json
+        json.dump(prefixes, f, indent=4)
+
+    embed = Embed(title=f"Префикс изменен на: {prefix}", color=0xb400ff)
+    await ctx.send(embed=embed)  # confirms the prefix it's been changed to
+
+
+@bot.command(pass_context=True)
+@has_permissions(administrator=True)  # ensure that only administrators can use this command
+async def каналприветствий(ctx, channel: discord.TextChannel):
+    with open("channels.json", "r") as f:
+        channels = json.load(f)
+
+    channels[str(ctx.guild.id)] = channel.id
+
+    with open("channels.json", "w") as f:  # writes the new prefix into the .json
+        json.dump(channels, f, indent=4)
+
+    embed = Embed(title=f"Канал приветствий изменен на: {channel}", color=0xb400ff)
+    await ctx.send(embed=embed)  # confirms the prefix it's been changed to
 
 
 @bot.command()
