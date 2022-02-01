@@ -187,12 +187,18 @@ async def модерирование(ctx):
     await ctx.send(embed=embed)
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def debug(ctx, emoji: Emoji):
     embed = Embed(description=f"emoji: {emoji}", title=f"emoji: {emoji}")
     embed.add_field(name="id", value=repr(emoji.id))
     embed.add_field(name="name", value=repr(emoji.name))
     await ctx.send(embed=embed)
+
+
+@bot.command()
+async def пинг(ctx, user: discord.User, amount):
+    for i in range(int(amount)):
+        await ctx.send(user.mention)
 
 
 @bot.command(pass_context=True)
