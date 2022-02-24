@@ -82,7 +82,7 @@ async def on_member_remove(member):
         channels = json.load(f)
     channel = bot.get_channel(channels[str(member.guild.id)])
     embed = Embed(
-        description=f"{member} покинул сервер. {emoji}",
+        description=f"{member.mention} покинул сервер. {emoji}",
         color=0xb400ff)
     await channel.send(embed=embed)
 
@@ -196,13 +196,19 @@ async def debug(ctx, emoji: Emoji):
 
 
 @bot.command()
+@has_permissions(administrator=True)
 async def пинг(ctx, user: discord.User, amount):
-    for i in range(int(amount)):
-        await ctx.send(user.mention)
+    amount = int(amount)
+    if amount <= 15:
+        for i in range(amount):
+            await ctx.send(user.mention)
+    else:
+        embed = Embed(title=f"ошибка, лимит 15", color=0xb400ff)
+        await ctx.send(embed=embed)
 
 
 @bot.command(pass_context=True)
-@has_permissions(administrator=True)  # ensure that only administrators can use this command
+@has_permissions(administrator=True)
 async def префикс(ctx, prefix):
     with open("prefixes.json", "r") as f:
         prefixes = json.load(f)
@@ -228,15 +234,18 @@ async def каналприветствий(ctx, channel: discord.TextChannel):
         json.dump(channels, f, indent=4)
 
     # embed = Embed(title=f"Канал приветствий изменен на: {channel}", color=0xb400ff)
-    await ctx.send(f"Канал приветствий изменен на: <#{channel}>")  # confirms the prefix it's been changed to
+    await ctx.send(f"Канал приветствий изменен на: <#{channel.id}>")  # confirms the prefix it's been changed to
 
 
 @bot.command()
 @has_permissions(manage_messages=True)
-async def очистить(ctx, amount=0):
-    await ctx.channel.purge(limit=amount + 1)
+async def очистить(ctx, amount=0, user: discord.User = None):
+    if not user:
+        await ctx.channel.purge(limit=amount + 1)
+    else:
+        await ctx.channel.purge(limit=amount + 1, check=lambda m: m.author == user)
     embed = Embed(description=f"Было очищено {amount} сообщений", color=0xb400ff)
-    await ctx.send(embed=embed)
+    await ctx.send(embed=embed, delete_after=5)
 
 
 @bot.command(pass_context=True)
@@ -250,28 +259,28 @@ async def чек(ctx, user: discord.Member):
 
 
 @bot.command()
+@has_permissions(administrator=True)
 async def бан(ctx, user: discord.User, *reason):
-    tick = bot.get_emoji(929304182765269012)
-    nope = bot.get_emoji(929304208941940736)
+    tick_emoji = bot.get_emoji(929304182765269012)
+    cross_emoji = bot.get_emoji(929304208941940736)
     member = ctx.message.author
     role_1 = member.guild.get_role(923277518885228562)
     reason = " ".join(reason)
-    if role_1 in ctx.author.roles:
-        if user.id != ctx.author.id:
-            # ===============================================================
-            await ctx.guild.ban(user)
-            # ===============================================================
-            embed = Embed(title=f"{tick} {user} был успешно забанен",
-                          description=f"    причина: {reason}",
-                          color=0x9DFAB7)
-            embed.set_author(name=user.display_name, icon_url=user.avatar_url)
-            await ctx.send(embed=embed)
-    else:
-        embed = Embed(title=f"{nope} {user} не может быть забанен",
-                      description=f"    причина: недостаточно прав",
-                      color=0xFF6666)
+    if user.id != ctx.author.id:
+        # ===============================================================
+        # await ctx.guild.ban(user)
+        # ===============================================================
+        embed = Embed(title=f"{tick_emoji} {user} был успешно забанен",
+                      description=f"{cross_emoji} причина: {reason}",
+                      color=0x9DFAB7)
         embed.set_author(name=user.display_name, icon_url=user.avatar_url)
         await ctx.send(embed=embed)
+
+        # embed = Embed(title=f"{cross_emoji} {user} не может быть забанен",
+        #               description=f"    причина: недостаточно прав",
+        #               color=0xFF6666)
+        # embed.set_author(name=user.display_name, icon_url=user.avatar_url)
+        # await ctx.send(embed=embed)
 
 
 @bot.command()
@@ -286,15 +295,15 @@ async def mute(ctx, user: discord.Member, time: int, reason):
 
 @bot.command()
 async def мут(ctx, user: discord.Member, time: float, *reason):
-    tick = bot.get_emoji(929304182765269012)
-    nope = bot.get_emoji(929304208941940736)
+    tick_emoji = bot.get_emoji(929304182765269012)
+    cross_emoji = bot.get_emoji(929304208941940736)
     member = ctx.message.author
     role_1 = member.guild.get_role(929396705806409758)
     muted = member.guild.get_role(929426920666464357)
     reason = " ".join(reason)
     if role_1 in ctx.author.roles:
-        embed1 = Embed(title=f"{tick} {user} был успешно замучен на {time} минут",
-                       description=f"    причина: {reason}",
+        embed1 = Embed(title=f"{tick_emoji} {user} был успешно замучен на {time} минут",
+                       description=f"причина: {reason}",
                        color=0x9DFAB7)
         embed1.set_author(name=user.display_name, icon_url=user.avatar_url)
         await user.add_roles(muted)
@@ -304,7 +313,7 @@ async def мут(ctx, user: discord.Member, time: float, *reason):
         await user.remove_roles(muted)
         await ctx.send("размучен")
     else:
-        embed = Embed(title=f"{nope} {user} не может быть замучен",
+        embed = Embed(title=f"{cross_emoji} {user} не может быть замучен",
                       description=f"    причина: недостаточно прав",
                       color=0xFF6666)
         embed.set_author(name=user.display_name, icon_url=user.avatar_url)
