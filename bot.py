@@ -15,41 +15,15 @@ def get_prefix(client, message):  # first we define get_prefix
     with open("prefixes.json", "r") as f:  # we open and read the prefixes.json, assuming it's in the same file
         prefixes = json.load(f)  # load the json as prefixes
 
-    if str(message.guild.id) not in prefixes.keys():
-        return "!"
+    if str(message.guild.id) in prefixes.keys():
+        return prefixes[str(message.guild.id)]  # recieve the prefix for the guild id given
 
-    return prefixes[str(message.guild.id)]  # recieve the prefix for the guild id given
+    return "!"
 
 
 intents = discord.Intents.default()
 intents.members = True
 bot = commands.Bot(command_prefix=get_prefix, intents=intents)
-
-
-@bot.event
-async def on_guild_join(guild):
-    if guild.system_channel:
-        embed = Embed(title=f"Спасибо, что пригласили меня на сервер {guild.name}", color=0xb400ff)
-        await guild.system_channel.send(embed=embed)  # confirms the prefix it's been changed to
-
-    with open("prefixes.json", "r") as f:  # read the prefix.json file
-        prefixes = json.load(f)  # load the json file
-
-    prefixes[str(guild.id)] = "!"  # default prefix
-
-    with open('prefixes.json', "w") as f:  # write in the prefix.json "message.guild.id": "bl!"
-        json.dump(prefixes, f, indent=4)  # the indent is to make everything look a bit neater
-
-
-@bot.event
-async def on_guild_remove(guild):  # when the bot is removed from the guild
-    with open("prefixes.json", "r") as f:  # read the file
-        prefixes = json.load(f)
-
-    prefixes.pop(str(guild.id))  # find the guild.id that bot was removed from
-
-    with open("prefixes.json", "w") as f:  # deletes the guild.id as well as its prefix
-        json.dump(prefixes, f, indent=4)
 
 
 # bot events
@@ -64,27 +38,76 @@ async def on_ready():
 
 
 @bot.event
+async def on_guild_join(guild):
+    if guild.system_channel:
+        embed = Embed(title=f"Спасибо, что пригласили меня на сервер {guild.name}", color=0xb400ff)
+        await guild.system_channel.send(embed=embed)
+
+
+@bot.event
+async def on_guild_remove(guild):  # when the bot is removed from the guild
+    with open("prefixes.json", "r") as f:  # read the file
+        prefixes = json.load(f)
+
+    if str(guild.id) in prefixes.keys():
+        prefixes.pop(str(guild.id))  # find the guild.id that bot was removed from
+
+        with open("prefixes.json", "w") as f:  # deletes the guild.id as well as its prefix
+            json.dump(prefixes, f, indent=4)
+
+
+@bot.event
 async def on_member_join(member):
-    with open("channels.json", "r") as f:  # we open and read the prefixes.json, assuming it's in the same file
+    bot_member_count = len([m for m in member.guild.members if m.bot])
+    true_member_count = len([m for m in member.guild.members if not m.bot])
+
+    with open("channels.json", "r") as f:
         channels = json.load(f)
-    channel = bot.get_channel(channels[str(member.guild.id)])
-    embed = Embed(
-        title="Приветствую",
-        description=f"{member.mention} присоеденился к серверу",
-        color=0xb400ff)
-    await channel.send(embed=embed)
+
+    if str(member.guild.id) in channels.keys():
+        channel = bot.get_channel(channels[str(member.guild.id)])
+        embed = Embed(
+            title="Приветствую",
+            description=f"""{member.mention} присоеденился к серверу
+                            количество ботов {bot_member_count}
+                            количество людей {true_member_count}""",
+            color=0xb400ff)
+        await channel.send(embed=embed)
+
+    elif member.guild.system_channel:
+        embed = Embed(
+            title="Ошибка",
+            description=f"""Не указан канал приветствий
+                        {member.mention} присоеденился к серверу""",
+            color=0xb400ff)
+        await member.guild.system_channel.send(embed=embed)
+
 
 
 @bot.event
 async def on_member_remove(member):
+    bot_member_count = len([m for m in member.guild.members if m.bot])
+    true_member_count = len([m for m in member.guild.members if not m.bot])
+
     emoji = bot.get_emoji(937317581566656572)
+
     with open("channels.json", "r") as f:  # we open and read the prefixes.json, assuming it's in the same file
         channels = json.load(f)
-    channel = bot.get_channel(channels[str(member.guild.id)])
-    embed = Embed(
-        description=f"{member.mention} покинул сервер. {emoji}",
-        color=0xb400ff)
-    await channel.send(embed=embed)
+
+    if str(member.guild.id) in channels.keys():
+        channel = bot.get_channel(channels[str(member.guild.id)])
+        embed = Embed(
+            description=f"{member.mention} покинул сервер. {emoji}",
+            color=0xb400ff)
+        await channel.send(embed=embed)
+
+    elif member.guild.system_channel:
+        embed = Embed(
+            title="Ошибка",
+            description=f"""Не указан канал приветствий
+                        {member.mention} покинул сервер. {emoji}""",
+            color=0xb400ff)
+        await member.guild.system_channel.send(embed=embed)
 
 
 @bot.event
@@ -123,7 +146,6 @@ async def инфо(ctx):
     embed.add_field(name=f"`{get_prefix(None, ctx.message)}правила_модераторов`",
                     value="выведет основные правила для модераторов",
                     inline=False)
-    embed.set_footer(text="всю эту информацию вы можете найти в чатах с соответственным названием")
     await ctx.send(embed=embed)
 
 
@@ -203,7 +225,7 @@ async def пинг(ctx, user: discord.User, amount):
         for i in range(amount):
             await ctx.send(user.mention)
     else:
-        embed = Embed(title=f"ошибка, лимит 15", color=0xb400ff)
+        embed = Embed(description=f"ошибка, лимит 15", color=0xb400ff)
         await ctx.send(embed=embed)
 
 
@@ -218,7 +240,7 @@ async def префикс(ctx, prefix):
     with open("prefixes.json", "w") as f:  # writes the new prefix into the .json
         json.dump(prefixes, f, indent=4)
 
-    embed = Embed(title=f"Префикс изменен на: {prefix}", color=0xb400ff)
+    embed = Embed(description=f"Префикс изменен на: {prefix}", color=0xb400ff)
     await ctx.send(embed=embed)  # confirms the prefix it's been changed to
 
 
@@ -234,7 +256,8 @@ async def каналприветствий(ctx, channel: discord.TextChannel):
         json.dump(channels, f, indent=4)
 
     # embed = Embed(title=f"Канал приветствий изменен на: {channel}", color=0xb400ff)
-    await ctx.send(f"Канал приветствий изменен на: <#{channel.id}>")  # confirms the prefix it's been changed to
+    embed = Embed(description=f"Канал приветствий изменен на: {channel.mention}", color=0xb400ff)
+    await ctx.send(embed=embed)  # confirms the prefix it's been changed to
 
 
 @bot.command()
